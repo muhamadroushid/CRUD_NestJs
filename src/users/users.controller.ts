@@ -4,12 +4,16 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe, // when we pass id as a string , it throws error.Also it transform str number to numeric data
   Patch,
   Post,
   Query,
+  ValidationPipe,
 } from '@nestjs/common';
 
 import { UsersService } from './users.service';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
 export class UsersController {
@@ -21,37 +25,25 @@ export class UsersController {
   }
 
   @Get(':id') // GET /users/:id
-  findOne(@Param('id') id: string) {
-    return this.usersService.findONe(+id); // Convert id to number
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.findONe(id); // Convert id to number
   }
 
   @Post() // POST /users
-  create(
-    @Body()
-    user: {
-      name: string;
-      email: string;
-      role: 'INTERN' | 'ENGINEER' | 'ADMIN';
-    },
-  ) {
-    return this.usersService.create(user);
+  create(@Body(ValidationPipe) createUserDto: CreateUserDto) {
+    return this.usersService.create(createUserDto);
   }
 
   @Patch(':id') // PATCH /users/:id
   Update(
-    @Param('id') id: string,
-    @Body()
-    userUpdate: {
-      name?: string;
-      email?: string;
-      role?: 'INTERN' | 'ENGINEER' | 'ADMIN';
-    },
+    @Param('id', ParseIntPipe) id: number,
+    @Body(ValidationPipe) updateUserDto: UpdateUserDto,
   ) {
-    return this.usersService.update(+id, userUpdate);
+    return this.usersService.update(id, updateUserDto);
   }
 
   @Delete(':id') // DELETE /users/:id
-  delete(@Param('id') id: string) {
-    return this.usersService.delete(+id); // Convert id to number
+  delete(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.delete(id); // Convert id to number
   }
 }
